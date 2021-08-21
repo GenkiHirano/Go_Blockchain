@@ -127,6 +127,7 @@ func (bc *Blockchain) AddTransaction(sender string, recipient string, value floa
 		log.Println("ERROR: Verify Transaction")
 	}
 	return false
+
 }
 
 func (bc *Blockchain) VerifyTransactionSignature(
