@@ -1,4 +1,4 @@
-package main
+package blockchain_server
 
 import (
 	"flag"
