@@ -71,7 +71,7 @@ func (w *Wallet) PublicKey() *ecdsa.PublicKey {
 }
 
 func (w *Wallet) PublicKeyStr() string {
-	return fmt.Sprintf("%064x064%x", w.publicKey.X.Bytes(), w.publicKey.Y.Bytes())
+	return fmt.Sprintf("%064x%064x", w.publicKey.X.Bytes(), w.publicKey.Y.Bytes())
 }
 
 func (w *Wallet) BlockchainAddress() string {
@@ -80,11 +80,11 @@ func (w *Wallet) BlockchainAddress() string {
 
 func (w *Wallet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		PricateKey        string `json: "private_key"`
-		PublicKey         string `json: "public_key"`
-		BlockchainAddress string `json: "blockchain_address"`
+		PrivateKey        string `json:"private_key"`
+		PublicKey         string `json:"public_key"`
+		BlockchainAddress string `json:"blockchain_address"`
 	}{
-		PricateKey:        w.PrivateKeyStr(),
+		PrivateKey:        w.PrivateKeyStr(),
 		PublicKey:         w.PublicKeyStr(),
 		BlockchainAddress: w.BlockchainAddress(),
 	})

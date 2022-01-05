@@ -78,7 +78,7 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 		privateKey := utils.PrivateKeyFromString(*t.SenderPrivateKey, publicKey)
 		value, err := strconv.ParseFloat(*t.Value, 32)
 		if err != nil {
-			log.Println("ERROR: Invalid HTTP Method")
+			log.Println("ERROR: parse error")
 			io.WriteString(w, string(utils.JsonStatus("fail")))
 			return
 		}
@@ -106,7 +106,6 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 			return
 		}
 		io.WriteString(w, string(utils.JsonStatus("fail")))
-
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println("ERROR: Invalid HTTP Method")
@@ -127,25 +126,25 @@ func (ws *WalletServer) WalletAmount(w http.ResponseWriter, req *http.Request) {
 
 		bcsResp, err := client.Do(bcsReq)
 		if err != nil {
-			log.Printf("ERROR: %V", err)
+			log.Printf("ERROR: %v", err)
 			io.WriteString(w, string(utils.JsonStatus("fail")))
 			return
 		}
 
-		w.Header().Add("Content-type", "application/json")
+		w.Header().Add("Content-Type", "application/json")
 		if bcsResp.StatusCode == 200 {
 			decoder := json.NewDecoder(bcsResp.Body)
 			var bar block.AmountResponse
 			err := decoder.Decode(&bar)
 			if err != nil {
-				log.Printf("ERROR: %V", err)
+				log.Printf("ERROR: %v", err)
 				io.WriteString(w, string(utils.JsonStatus("fail")))
 				return
 			}
 
 			m, _ := json.Marshal(struct {
-				Message string  `json: "message"`
-				Amount  float32 `json: "amount"`
+				Message string  `json:"message"`
+				Amount  float32 `json:"amount"`
 			}{
 				Message: "success",
 				Amount:  bar.Amount,

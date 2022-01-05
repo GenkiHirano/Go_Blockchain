@@ -1,4 +1,4 @@
-package blockchain_server
+package main
 
 import (
 	"encoding/json"
@@ -33,7 +33,7 @@ func (bcs *BlockchainServer) GetBlockchain() *block.Blockchain {
 		cache["blockchain"] = bc
 		log.Printf("private_key %v", minersWallet.PrivateKeyStr())
 		log.Printf("publick_key %v", minersWallet.PublicKeyStr())
-		log.Printf("blockchain_address %s", minersWallet.BlockchainAddress())
+		log.Printf("blockchain_address %v", minersWallet.BlockchainAddress())
 	}
 	return bc
 }
@@ -83,7 +83,8 @@ func (bcs *BlockchainServer) Transactions(w http.ResponseWriter, req *http.Reque
 		publicKey := utils.PublicKeyFromString(*t.SenderPublicKey)
 		signature := utils.SignatureFromString(*t.Signature)
 		bc := bcs.GetBlockchain()
-		isCreated := bc.CreateTransaction(*t.SenderBlockchainAddress, *t.RecipientBlockchainAddress, *t.Value, publicKey, signature)
+		isCreated := bc.CreateTransaction(*t.SenderBlockchainAddress,
+			*t.RecipientBlockchainAddress, *t.Value, publicKey, signature)
 
 		w.Header().Add("Content-Type", "application/json")
 		var m []byte
@@ -95,6 +96,8 @@ func (bcs *BlockchainServer) Transactions(w http.ResponseWriter, req *http.Reque
 			m = utils.JsonStatus("success")
 		}
 		io.WriteString(w, string(m))
+	case http.MethodDelete:
+		// bc := bcs.GetBlockchain()
 
 	default:
 		log.Println("ERROR: Invalid HTTP Method")
@@ -129,8 +132,7 @@ func (bcs *BlockchainServer) StartMine(w http.ResponseWriter, req *http.Request)
 		bc := bcs.GetBlockchain()
 		bc.StartMining()
 
-		m := utils.JsonStatus("fail")
-
+		m := utils.JsonStatus("success")
 		w.Header().Add("Content-Type", "application/json")
 		io.WriteString(w, string(m))
 	default:
@@ -158,6 +160,8 @@ func (bcs *BlockchainServer) Amount(w http.ResponseWriter, req *http.Request) {
 }
 
 func (bcs *BlockchainServer) Run() {
+	bcs.GetBlockchain().Run()
+
 	http.HandleFunc("/", bcs.GetChain)
 	http.HandleFunc("/transactions", bcs.Transactions)
 	http.HandleFunc("/mine", bcs.Mine)
